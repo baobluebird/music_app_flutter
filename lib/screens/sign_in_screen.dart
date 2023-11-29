@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:music_ui/screens/sign_up_screen.dart';
@@ -24,22 +25,26 @@ class _SignInScreenState extends State<SignInScreen> {
   bool _isLoading = false;
   bool isError = true;
   String serverMessage = '';
-  String token ='';
+  String token = '';
+
+
   Future<void> _signIn() async {
     if (_formKey.currentState?.validate() ?? false) {
-      final String email = _emailController.text;
-      final String password = _passwordController.text;
       try {
-        final Map<String, dynamic> response =
-            await SignInService.signIn(email, password);
+        final Map<String, dynamic> response = await SignInService.signIn(
+          _emailController.text,
+          _passwordController.text,
+        );
 
         print('Response status: ${response['status']}');
         print('Response body: ${response['message']}');
         print('Response body: ${response['access_token']}');
+
         if (response['status'] == "success") {
           token = response['access_token'];
           await myBox.put('id', response['id']);
           await myBox.put('name', response['name']);
+          print("success stored to hive");
           setState(() {
             serverMessage = response['message'];
             isError = false;
@@ -62,7 +67,9 @@ class _SignInScreenState extends State<SignInScreen> {
     }
   }
 
-  Future<void> remember() async{
+
+
+  Future<void> remember() async {
     await myBox.put('token', token);
   }
 
@@ -79,6 +86,13 @@ class _SignInScreenState extends State<SignInScreen> {
     setState(() {
       checkTheBox = !checkTheBox;
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
   }
 
   @override
@@ -172,7 +186,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       });
                       await _signIn();
                       if (!isError) {
-                        if(checkTheBox){
+                        if (checkTheBox) {
                           await remember();
                         }
                         ScaffoldMessenger.of(context).showSnackBar(

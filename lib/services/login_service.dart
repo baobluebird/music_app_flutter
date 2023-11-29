@@ -1,5 +1,8 @@
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import '../ipconfig/ipconfig.dart';
 
 class SignInService {
   static Future<Map<String, dynamic>> signIn(String email, String password) async {
@@ -10,7 +13,7 @@ class SignInService {
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.1.21:3003/api/user/sign-in'),
+        Uri.parse('http://$ip:3003/api/user/sign-in'),
         body: jsonEncode(requestBody),
         headers: {'Content-Type': 'application/json'},
       );
@@ -32,31 +35,55 @@ class SignInService {
 }
 
 class SignUpService {
-  static Future<Map<String, dynamic>> signUp(String name, String email, String password, String confirmPassword) async {
-    final Map<String, dynamic> requestBody = {
-      "name": name,
-      "email": email,
-      "password": password,
-      "confirmPassword": confirmPassword,
-    };
+  static Future<Map<String, dynamic>> signUp(String name, String email, String password, String confirmPassword, File? image) async {
+    final url = Uri.parse('http://$ip:3003/api/user/sign-up');
+    final request = http.MultipartRequest('POST', url);
+
+    request.files.add(await http.MultipartFile.fromPath('image', image!.path));
+    request.fields['name'] = name;
+    request.fields['email'] = email;
+    request.fields['password'] = password;
+    request.fields['confirmPassword'] = confirmPassword;
 
     try {
-      final response = await http.post(
-        Uri.parse('http://192.168.1.21:3003/api/user/sign-up'),
-        body: jsonEncode(requestBody),
-        headers: {'Content-Type': 'application/json'},
-      );
-
+      final response = await request.send();
       if (response.statusCode == 200) {
-        final responseBody = jsonDecode(response.body);
-        return responseBody;
+        final responseBody = await response.stream.bytesToString();
+        final decodedResponse = json.decode(responseBody);
+        return {'status':decodedResponse['status'], 'message': decodedResponse['message']};
       } else {
-        // Handle other status codes (e.g., display an error message)
         print('Error: ${response.statusCode}');
         return {'status': 'error', 'message': 'Server error'};
       }
     } catch (error) {
-      // Handle network or other errors
+      print('Error: $error');
+      return {'status': 'error', 'message': 'Network error'};
+    }
+  }
+}
+
+class CreateMusicService {
+  static Future<Map<String, dynamic>> createMusic(String name, String genres, String singer, String description, File? image, File? music) async {
+    final url = Uri.parse('http://$ip:3003/api/user/sign-up');
+    final request = http.MultipartRequest('POST', url);
+
+    request.files.add(await http.MultipartFile.fromPath('image', image!.path));
+    request.fields['name'] = name;
+    request.fields['genres'] = genres;
+    request.fields['singer'] = singer;
+    request.fields['description'] = description;
+
+    try {
+      final response = await request.send();
+      if (response.statusCode == 200) {
+        final responseBody = await response.stream.bytesToString();
+        final decodedResponse = json.decode(responseBody);
+        return {'status':decodedResponse['status'], 'message': decodedResponse['message']};
+      } else {
+        print('Error: ${response.statusCode}');
+        return {'status': 'error', 'message': 'Server error'};
+      }
+    } catch (error) {
       print('Error: $error');
       return {'status': 'error', 'message': 'Network error'};
     }
@@ -71,7 +98,7 @@ class ForgotPasswordService {
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.1.21:3003/api/user/forgot-password'),
+        Uri.parse('http://$ip:3003/api/user/forgot-password'),
         body: jsonEncode(requestBody),
         headers: {'Content-Type': 'application/json'},
       );
@@ -99,7 +126,7 @@ class VerifyCodeService {
     };
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.1.21:3003/api/user/verify-code'),
+        Uri.parse('http://$ip:3003/api/user/verify-code'),
         body: jsonEncode(requestBody),
         headers: {'Content-Type': 'application/json'},
       );
@@ -126,7 +153,7 @@ class ResetPassService {
       "password": password,
       "confirmPassword": confirmPassword,
     };
-    var url = 'http://192.168.1.21:3003/api/user/update-pass/$idUser';
+    var url = 'http://$ip:3003/api/user/update-pass/$idUser';
     print(url);
     try {
       final response = await http.post(
@@ -156,7 +183,7 @@ class DecodeTokenService {
     final Map<String, dynamic> requestBody = {
       "token": token,
     };
-    var url = 'http://192.168.1.21:3003/api/user/send-token';
+    var url = 'http://$ip:3003/api/user/send-token';
     print(url);
     try {
       final response = await http.post(
@@ -186,7 +213,7 @@ class LogoutService {
     final Map<String, dynamic> requestBody = {
       "token": token,
     };
-    var url = 'http://192.168.1.21:3003/api/user/log-out';
+    var url = 'http://$ip:3003/api/user/log-out';
     print(url);
     try {
       final response = await http.post(
@@ -210,3 +237,29 @@ class LogoutService {
     }
   }
 }
+
+class UpdateUserService {
+  static Future<Map<String, dynamic>> updateUser(String id, String name, File? image) async {
+
+    final url = Uri.parse('http://$ip:3003/api/user/update-user/$id');
+    final request = http.MultipartRequest('POST', url);
+    request.files.add(await http.MultipartFile.fromPath('image', image!.path));
+    request.fields['name'] = name;
+
+    try {
+      final response = await request.send();
+      if (response.statusCode == 200) {
+        final responseBody = await response.stream.bytesToString();
+        final decodedResponse = json.decode(responseBody);
+        return {'status':decodedResponse['status'], 'message': decodedResponse['message']};
+      } else {
+        print('Error: ${response.statusCode}');
+        return {'status': 'error', 'message': 'Server error'};
+      }
+    } catch (error) {
+      print('Error: $error');
+      return {'status': 'error', 'message': 'Network error'};
+    }
+  }
+}
+

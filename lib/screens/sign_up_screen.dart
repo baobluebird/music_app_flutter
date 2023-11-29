@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:music_ui/screens/sign_in_screen.dart';
 import '../components/button.dart';
 import '../components/text_field.dart';
 import '../services/login_service.dart';
-
-
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
@@ -22,6 +22,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _isLoading = false;
   bool isError = true;
   String serverMessage = '';
+  File? _image;
 
   Future<void> _signUp() async {
     if (_formKey.currentState?.validate() ?? false) {
@@ -31,14 +32,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
       final String confirmPassword = _confirmPasswordController.text;
       try {
         final Map<String, dynamic> response =
-        await SignUpService.signUp(name,email, password, confirmPassword);
+        await SignUpService.signUp(name,email, password, confirmPassword, _image);
 
-        print('Response status: ${response['status']}');
-        print('Response body: ${response['message']}');
+        print('Response status: ${response["status"]}');
+        print('Response body: ${response["message"]}');
 
         if (response['status'] == "success") {
           setState(() {
-            serverMessage = response['message'];
+            serverMessage = response["message"];
             isError = false;
           });
           print('Create successful');
@@ -73,7 +74,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
       showPass = !showPass;
     });
   }
+  Future<File> pickImage(ImageSource source) async {
+    try {
+      final pickedFile = await ImagePicker().pickImage(source: source);
 
+      if (pickedFile == null) {
+        throw Exception('No image selected.');
+      }
+
+      return File(pickedFile.path);
+    } catch (e) {
+      print('Error picking image: $e');
+      throw e;
+    }
+  }
+
+  selectImage() async {
+    File im = await pickImage(ImageSource.gallery);
+    setState(() {
+      _image = im;
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,8 +104,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
           child: Form(
             key: _formKey,
             child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Image.asset("assets/logo.png",
-                  color: const Color.fromARGB(255, 10, 185, 121), width: 300),
+              Stack(
+                children: [
+                  _image != null
+                      ? CircleAvatar(
+                    radius: 64,
+                    backgroundImage: FileImage(_image!),
+                    backgroundColor: Colors.red,
+                  )
+                      : const CircleAvatar(
+                    radius: 64,
+                    backgroundImage: NetworkImage(
+                        'https://i.stack.imgur.com/l60Hf.png'),
+                    backgroundColor: Colors.red,
+                  ),
+                  Positioned(
+                    bottom: -10,
+                    left: 80,
+                    child: IconButton(
+                      onPressed: selectImage,
+                      icon: const Icon(Icons.add_a_photo),
+                    ),
+                  )
+                ],
+              ),
               MyTextField(
                 inputController: _nameController,
                 hintText: "Name",
@@ -118,6 +161,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
               MyButton(
                 onTap: () async {
                   FocusScope.of(context).requestFocus(FocusNode());
+                  if(_image == null){
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Please choose your avatar"),
+                        duration: Duration(seconds: 2),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                    return;
+                  }
                   if (!_isLoading) {
                     setState(() {
                       _isLoading = true;
