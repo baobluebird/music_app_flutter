@@ -46,7 +46,8 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonResponse = jsonDecode(response.body);
 
-      List<int> byteData = List<int>.from(jsonResponse['image']['data']['data']);
+      List<int> byteData =
+          List<int>.from(jsonResponse['image']['data']['data']);
 
       Uint8List imageData = Uint8List.fromList(byteData);
 
@@ -60,7 +61,6 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
       return null;
     }
   }
-
 
   Future<void> _logout(String token) async {
     try {
@@ -135,7 +135,8 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
       Home(miniPlayer),
       Search(),
       UploadMusicScreen(),
-      LibraryMusicScreen()];
+      LibraryMusicScreen()
+    ];
   }
 
   var Tabs = [];
@@ -177,7 +178,7 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                 ),
                 Container(
                   padding: const EdgeInsets.only(left: 10),
-                  width: 180,
+                  width: 100,
                   child: Column(
                     children: [
                       Center(
@@ -249,6 +250,15 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                     color: Colors.white,
                   ),
                 ),
+                IconButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => MyApp()));
+                    },
+                    icon: const Icon(
+                      Icons.exit_to_app,
+                      color: Colors.white,
+                    ))
               ],
             ),
             SliderTheme(
@@ -259,10 +269,10 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                 trackHeight: 4.0,
                 thumbColor: Colors.white,
                 thumbShape:
-                const RoundSliderThumbShape(enabledThumbRadius: 8.0),
+                    const RoundSliderThumbShape(enabledThumbRadius: 8.0),
                 overlayColor: Colors.red.withAlpha(32),
                 overlayShape:
-                const RoundSliderOverlayShape(overlayRadius: 28.0),
+                    const RoundSliderOverlayShape(overlayRadius: 28.0),
               ),
               child: Slider(
                   min: 0,
@@ -304,15 +314,16 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
               children: [
                 _image != null
                     ? CircleAvatar(
-                  radius: 100,
-                  backgroundImage: MemoryImage(_image!),
-                  backgroundColor: Colors.red,
-                )
+                        radius: 100,
+                        backgroundImage: MemoryImage(_image!),
+                        backgroundColor: Colors.red,
+                      )
                     : const CircleAvatar(
-                  radius: 64,
-                  backgroundImage: NetworkImage('https://i.stack.imgur.com/l60Hf.png'),
-                  backgroundColor: Colors.red,
-                ),
+                        radius: 64,
+                        backgroundImage:
+                            NetworkImage('https://i.stack.imgur.com/l60Hf.png'),
+                        backgroundColor: Colors.red,
+                      ),
                 ListTile(
                   title: Text(_nameUser),
                   textColor: Colors.black,
@@ -323,10 +334,10 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => UpdateUserScreen(idUser: _idUser, name: _nameUser),
+                        builder: (context) =>
+                            UpdateUserScreen(idUser: _idUser, name: _nameUser),
                       ),
                     );
-
                   },
                 ),
                 ListTile(
@@ -342,7 +353,6 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                     //     builder: (context) => UpdateUserScreen(idUser: _idUser, name: _nameUser,),
                     //   ),
                     // );
-
                   },
                 ),
                 ListTile(
@@ -382,12 +392,12 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                     Icons.settings,
                   ),
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ForgotPasswordScreen(),
-                      ),
-                    );
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => const ForgotPasswordScreen(),
+                    //   ),
+                    // );
                   },
                 ),
                 ListTile(
@@ -456,4 +466,3 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
         ));
   }
 }
-
