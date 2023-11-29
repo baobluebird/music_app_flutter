@@ -103,11 +103,11 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
     return '${(Duration(seconds: seconds))}'.split('.')[0].padLeft(8, '0');
   }
 
-  // @override
-  // void dispose() {
-  //   _audioPlayer.dispose();
-  //   super.dispose();
-  // }
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {

@@ -1,12 +1,12 @@
 import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
+import 'package:hive/hive.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:music_ui/components/button.dart';
 import 'package:music_ui/components/text_field.dart';
-import 'package:music_ui/services/login_service.dart';
-import 'dart:typed_data';
+
+import '../services/music_service.dart';
 
 class DashedBorder extends StatelessWidget {
   final Widget child;
@@ -98,9 +98,11 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
   final TextEditingController _descriptionController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  final myBox = Hive.box('myBox');
   bool _isLoading = false;
   bool isError = true;
   String serverMessage = '';
+  String _idUser= '';
   File? _image;
   File? _music;
 
@@ -110,6 +112,7 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
         print(_music);
         final Map<String, dynamic> response =
             await CreateMusicService.createMusic(
+                _idUser,
                 _nameController.text,
                 _genresController.text,
                 _singerController.text,
@@ -166,7 +169,6 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
   Future<File?> pickFile() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles();
-
       if (result != null && result.files.isNotEmpty) {
         PlatformFile file = result.files.first;
         return File(file.path!);
@@ -194,6 +196,19 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
         ),
       );
     }
+  }
+@override
+void initState() {
+  super.initState();
+  _idUser = myBox.get('id', defaultValue: '');
+}
+  @override
+  void dispose() {
+    super.dispose();
+    _nameController.dispose();
+    _genresController.dispose();
+    _singerController.dispose();
+    _descriptionController.dispose();
   }
 
   @override
@@ -338,7 +353,6 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                             backgroundColor: Colors.green,
                           ),
                         );
-                        Navigator.of(context).pop();
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(

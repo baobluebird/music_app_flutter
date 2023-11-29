@@ -62,34 +62,6 @@ class SignUpService {
   }
 }
 
-class CreateMusicService {
-  static Future<Map<String, dynamic>> createMusic(String name, String genres, String singer, String description, File? image, File? music) async {
-    final url = Uri.parse('http://$ip:3003/api/user/sign-up');
-    final request = http.MultipartRequest('POST', url);
-
-    request.files.add(await http.MultipartFile.fromPath('image', image!.path));
-    request.fields['name'] = name;
-    request.fields['genres'] = genres;
-    request.fields['singer'] = singer;
-    request.fields['description'] = description;
-
-    try {
-      final response = await request.send();
-      if (response.statusCode == 200) {
-        final responseBody = await response.stream.bytesToString();
-        final decodedResponse = json.decode(responseBody);
-        return {'status':decodedResponse['status'], 'message': decodedResponse['message']};
-      } else {
-        print('Error: ${response.statusCode}');
-        return {'status': 'error', 'message': 'Server error'};
-      }
-    } catch (error) {
-      print('Error: $error');
-      return {'status': 'error', 'message': 'Network error'};
-    }
-  }
-}
-
 class ForgotPasswordService {
   static Future<Map<String, dynamic>> sendEmail(String email) async {
     final Map<String, dynamic> requestBody = {
