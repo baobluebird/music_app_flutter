@@ -15,6 +15,8 @@ import '../screens/home_screen.dart';
 import '../screens/update_user_screen.dart';
 import '../screens/upload_music.dart';
 import 'login.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'dart:math' as math;
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -29,6 +31,10 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
 
   final myBox = Hive.box('myBox');
   late String storedToken;
+  late final AnimationController _controller =
+      AnimationController(vsync: this, duration: Duration(seconds: 10))
+        ..repeat();
+
   String serverMessage = '';
   String _nameUser = '';
   String _idUser = '';
@@ -47,7 +53,7 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
       Map<String, dynamic> jsonResponse = jsonDecode(response.body);
 
       List<int> byteData =
-      List<int>.from(jsonResponse['image']['data']['data']);
+          List<int>.from(jsonResponse['image']['data']['data']);
 
       Uint8List imageData = Uint8List.fromList(byteData);
 
@@ -170,11 +176,24 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               mainAxisSize: MainAxisSize.min,
               children: [
-                ClipOval(
-                  child: SizedBox(
-                      width: 80,
-                      height: 80,
-                      child: Image.network(music.image, fit: BoxFit.cover)),
+                AnimatedBuilder(
+                  animation: _controller,
+                  builder: (_, child) {
+                    if (isPlaying == true) {
+                      return Transform.rotate(
+                        angle: _controller.value * 2 * math.pi,
+                        child: child,
+                      );
+                    } else {
+                      return child!;
+                    }
+                  },
+                  child: ClipOval(
+                    child: SizedBox(
+                        width: 80,
+                        height: 80,
+                        child: Image.network(music.image, fit: BoxFit.cover)),
+                  ),
                 ),
                 Container(
                   padding: const EdgeInsets.only(left: 10),
@@ -225,6 +244,10 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                       isPlaying = !isPlaying;
                       if (isPlaying) {
                         await _audioPlayer.play(UrlSource(music.audioURL));
+                        SpinKitRotatingCircle(
+                          color: Colors.blue,
+                          size: 50,
+                        );
                       } else {
                         await _audioPlayer.pause();
                       }
@@ -252,6 +275,7 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                 ),
                 IconButton(
                     onPressed: () {
+                      _audioPlayer.stop();
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) => MyApp()));
                     },
@@ -269,10 +293,10 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                 trackHeight: 4.0,
                 thumbColor: Colors.white,
                 thumbShape:
-                const RoundSliderThumbShape(enabledThumbRadius: 8.0),
+                    const RoundSliderThumbShape(enabledThumbRadius: 8.0),
                 overlayColor: Colors.red.withAlpha(32),
                 overlayShape:
-                const RoundSliderOverlayShape(overlayRadius: 28.0),
+                    const RoundSliderOverlayShape(overlayRadius: 28.0),
               ),
               child: Slider(
                   min: 0,
@@ -314,16 +338,16 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
               children: [
                 _image != null
                     ? CircleAvatar(
-                  radius: 100,
-                  backgroundImage: MemoryImage(_image!),
-                  backgroundColor: Colors.red,
-                )
+                        radius: 100,
+                        backgroundImage: MemoryImage(_image!),
+                        backgroundColor: Colors.red,
+                      )
                     : const CircleAvatar(
-                  radius: 64,
-                  backgroundImage:
-                  NetworkImage('https://i.stack.imgur.com/l60Hf.png'),
-                  backgroundColor: Colors.red,
-                ),
+                        radius: 64,
+                        backgroundImage:
+                            NetworkImage('https://i.stack.imgur.com/l60Hf.png'),
+                        backgroundColor: Colors.red,
+                      ),
                 ListTile(
                   title: Text(_nameUser),
                   textColor: Colors.black,
@@ -438,7 +462,6 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
               BottomNavigationBar(
                 currentIndex: currentTabIndex,
                 onTap: (currentIndex) {
-                  print("Current Index is $currentIndex");
                   currentTabIndex = currentIndex;
                   setState(() {}); // re-render
                 },

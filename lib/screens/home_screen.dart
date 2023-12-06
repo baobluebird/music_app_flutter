@@ -13,12 +13,18 @@ class Home extends StatelessWidget {
         color: Colors.blueGrey.shade400,
         child: Row(
           children: [
-            Image.network(category.imageURL, fit: BoxFit.cover,height: 100,width: 90,),
+            Image.network(
+              category.imageURL,
+              fit: BoxFit.cover,
+              height: 100,
+              width: 90,
+            ),
             Padding(
               padding: const EdgeInsets.only(left: 10),
               child: Text(
                 category.name,
-                style: const TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold),
               ),
             )
           ],
@@ -43,8 +49,8 @@ class Home extends StatelessWidget {
               height: 200,
               width: 200,
               child: InkWell(
-                onTap: (){
-                  _miniPlayer(music,stop:true);
+                onTap: () {
+                  _miniPlayer(music, stop: true);
                 },
                 child: Image.network(
                   music.image,
@@ -55,10 +61,13 @@ class Home extends StatelessWidget {
             padding: const EdgeInsets.only(top: 10.0),
             child: Text(
               music.name,
-              style: const TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ),
-          Text(music.desc, style: const TextStyle(color: Colors.white,fontWeight: FontWeight.bold))
+          Text(music.desc,
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold))
         ],
       ),
     );
@@ -67,7 +76,7 @@ class Home extends StatelessWidget {
   Widget createMusicList(String label) {
     List<Music> musicList = MusicOperations.getMusic();
     return Padding(
-      padding: const EdgeInsets.only(left: 10,top: 20),
+      padding: const EdgeInsets.only(left: 10, top: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -110,7 +119,6 @@ class Home extends StatelessWidget {
       backgroundColor: Colors.transparent,
       elevation: 0.0,
       title: Text(message),
-
     );
   }
 
@@ -120,22 +128,22 @@ class Home extends StatelessWidget {
     return SingleChildScrollView(
       child: SafeArea(
           child: Container(
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    colors: [Colors.blueGrey.shade300, Colors.black],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    stops: const [0.1, 0.3])),
-            child: Column(
-              children: [
-                createAppBar('Good morning'),
+        decoration: BoxDecoration(
+            gradient: LinearGradient(
+                colors: [Colors.blueGrey.shade300, Colors.black],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                stops: const [0.1, 0.3])),
+        child: Column(
+          children: [
+            createAppBar('Good morning'),
 
-                createGrid(),
-                createMusicList('Made for You'),
-                // createMusicList('Popular PlayList')
-              ],
-            ),
-          )),
+            createGrid(),
+            createMusicList('Made for You'),
+            // createMusicList('Popular PlayList')
+          ],
+        ),
+      )),
     );
   }
 }
